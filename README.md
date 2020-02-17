@@ -6,3 +6,11 @@ GDSyncOffline is a tool to synchronize the folder present in your google drive w
 * Turn on the Drive API for you account from here(https://developers.google.com/drive/api/v3/quickstart/python) and download the credentials.json in the repository.
 * Modify the `LOCAL_FOLDER` and `DRIVE_FOLDER` in main.py with your requirement.
 * Run `python3 main.py`
+
+## Features implemented:
+* Downloads the missing files/folders in the local folder.
+* Uploads the missing files/folders in the local folder.
+
+## Features to be added:
+* Synchronize deletion 
+* Synchronize modification in a file 
