@@ -83,16 +83,14 @@ def downloadMissingLocalFiles(apiClient, localPath, localFilesSet, driveFilesDat
             try:
                 file_id = item['id']
                 request = apiClient.files().get_media(fileId=file_id)
-                fh = io.BytesIO()
-                downloader = MediaIoBaseDownload(fh, request, chunksize=1024*1024)
+                localFilePath = os.path.join(localPath, item['name'])
+                fileIO = io.FileIO(localFilePath, 'wb')
+                downloader = MediaIoBaseDownload(fileIO, request, chunksize=1024*1024)
                 done = False
                 print("\nDownloading %s" % item['name'])
                 while not done:
                     status, done = downloader.next_chunk()
                     print ("\r%d%%" % int(status.progress() * 100), end="")
-                localFilePath = os.path.join(localPath, item['name'])
-                with open(localFilePath, 'wb') as fp:
-                    fp.write(fh.getvalue())
             except Exception as e:
                 print("\nFollowing exception occurred:")
                 print(e)
