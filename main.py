@@ -151,18 +151,6 @@ def main():
 if __name__ == '__main__':
     main()
 
-# Learn how to upload at a specific folder 
-
-# Libraries to be installed: 
-# python3 -m pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-
-# Algorithm
-# Call the set of folders present at root of drive folder FO1 and set of files present at root of drive folder FI1
-# Call the set of folders present at root of local folder FO2 and set of files present at root of local folder FI2
-# Download all files in (FI1 - FI2) 
-# Download all folders in (FO1 - FO2)
-# Upload all files in (FI2 - FI1)
-# Upload all folders in (FO2 - FO1)
 
 # For files in (FI1 and FI2), compare both the copies to check if they are the same. If not then replace the older one with the latest one 
 # For each folder in (FO1 and FO2), update the root folder to this new folder and do the same thing that we have done with the root folder 
