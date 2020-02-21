@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import os 
 import io
 import pickle
@@ -9,14 +7,9 @@ from googleapiclient.http import MediaFileUpload
 from googleapiclient.http import MediaIoBaseDownload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-import shutil 
 
-# If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/drive']
+import constants
 
-# Global Variables 
-LOCAL_FOLDER = '/home/shivam/Desktop/Mobile'
-DRIVE_FOLDER = 'Mobile'
 
 def getApiClient():
     credentials = None
@@ -32,7 +25,7 @@ def getApiClient():
             credentials.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                'credentials.json', constants.SCOPES)
             credentials = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
@@ -139,19 +132,37 @@ def syncFolder(localPath, driveId, apiClient):
     recursivelySyncMissingDriveFolders(apiClient, localFolderPaths, driveId, driveFoldersSet)
 
 
-def main():
-    apiClient = getApiClient()
-    targetFolderId = getIdFromPath(DRIVE_FOLDER, apiClient)
-    syncFolder(LOCAL_FOLDER, targetFolderId, apiClient)
+def pushFolder(localPath, driveId, apiClient):
+    localFilePaths, localFolderPaths, localFilesSet, localFoldersSet = getLocalFilesFolders(localPath)
+    driveFilesData, driveFoldersData, driveFilesSet, driveFoldersSet = getDriveFilesFolders(driveId, apiClient)
+    deleteMissingLocalFiles(apiClient, localPath, localFilesSet, driveFilesData)
+    recursivelyPushDriveFolders(apiClient, localPath, localFoldersSet, driveFoldersData)
+    uploadMissingDriveFiles(apiClient, localFilePaths, driveId, driveFilesSet)
+    recursivelySyncMissingDriveFolders(apiClient, localFolderPaths, driveId, driveFoldersSet)
 
 
-if __name__ == '__main__':
-    main()
+def deleteMissingLocalFiles(apiClient, localPath, localFilesSet, driveFilesData):
+    for item in driveFilesData:
+        if item['name'] not in localFilesSet:
+            try:
+                # Delete the file 
+                fileId = item['id']
+                apiClient.files().update(fileId=fileId, body={'trashed': True}).execute()
+                print("\nDeleting the file: %s" % item['name'])
+            except Exception as e:
+                print("\nFollowing exception occurred:")
+                print(e)
 
 
-# For files in (FI1 and FI2), compare both the copies to check if they are the same. If not then replace the older one with the latest one 
-# For each folder in (FO1 and FO2), update the root folder to this new folder and do the same thing that we have done with the root folder 
-
+def recursivelyPushDriveFolders(apiClient, localPath, localFoldersSet, driveFoldersData):
+    for item in driveFoldersData:
+        localFolderPath = os.path.join(localPath, item['name'])
+        if item['name'] not in localFoldersSet:
+            folderId = item['id']
+            apiClient.files().update(fileId=folderId, body={'trashed': True}).execute()
+            print("\nDeleting the folder: %s" % item['name'])
+        else:
+            pushFolder(localFolderPath, item['id'], apiClient)
 
 
 
