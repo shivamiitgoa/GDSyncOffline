@@ -12,12 +12,18 @@ def main():
     utils.pushFolder(constants.LOCAL_FOLDER, targetFolderId, apiClient)
 
 
+def emptyTrash():
+    apiClient = utils.getApiClient()
+    _ = apiClient.files().emptyTrash().execute()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-y", "--yes", help=constants.CAUTION_TEXT_PUSH, action="store_true")
+    parser.add_argument("-e", "--empty", help="Empty the trash", action="store_true")
     args = parser.parse_args()
+    if args.empty:
+        emptyTrash()
     if not args.yes:
-        ans = input("%s\nDo you want to continue(y/n):" % constants.CAUTION_TEXT_PUSH)
-        if ans != 'y':
-            exit()
+        exit()
     main()
